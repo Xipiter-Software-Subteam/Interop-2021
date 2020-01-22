@@ -1,0 +1,3 @@
+rate:2
+ip:at least 5 lol
+port:38452
