@@ -97,12 +97,12 @@ class connection():
             #firstly, create  a python dictionary, then convert it to json
             payload = { "username":username,"password":password}
             payload = json.dumps(payload)
-            self._address = "http://" + address + ":" + port
+            self._address = "http://" + str(address) + ":" + str(port)
             self._verbose = verbose
             #status = requests.post(url = (address + port + "/api/login"),data = payload)
             status = requests.post(url=(self._address + "/api/login"), data=payload)
             if(status.status_code == 200):
-		#http is technically stateless. cookies are used to maintain state. Therefore, this must be sent in everything to the server.
+        #http is technically stateless. cookies are used to maintain state. Therefore, this must be sent in everything to the server.
                 self._sessionid = status.cookies["sessionid"]
          
 
@@ -157,7 +157,7 @@ class connection():
                     "alphanumeric":alphanumeric,
                     "alphanumeric_color":alphanumeric_color
                 }
-		
+
                 #convert the dictionary to json
                 thisobject = json.dumps(thisobject)
                 status = requests.post(url=(self._address + "/api/odlcs"), data=thisobject,cookies ={"sessionid":self._sessionid})
@@ -237,7 +237,7 @@ class connection():
                     "autonomous":autonomous,
                     "description":description
                 }
-		
+
                 #convert the dictionary to json
                 jsonobject = json.dumps(dictobject)
                 status = requests.post(url=(self._address + "/api/odlcs"), data=jsonobject,cookies ={"sessionid":self._sessionid})
@@ -274,7 +274,7 @@ class connection():
                     "alphanumeric":alphanumeric,
                     "alphanumeric_color":alphanumeric_color
                 }
-		
+
                 #convert the dictionary to json
                 thisobject = json.dumps(thisobject)
                 status = requests.put(url=(self._address + "/api/odlcs/"+str(objectid)), data=thisobject,cookies ={"sessionid":self._sessionid})
@@ -300,7 +300,7 @@ class connection():
                     "autonomous":autonomous,
                     "description":description
                 }
-		
+
                 #convert the dictionary to json
                 jsonobject = json.dumps(dictobject)
                 status = requests.put(url=(self._address + "/api/odlcs/"+str(objectid)), data=jsonobject,cookies ={"sessionid":self._sessionid})

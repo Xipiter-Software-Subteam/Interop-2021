@@ -9,37 +9,8 @@
 import socket
 #pickle is used to send a python list over tcp
 import pickle
-#time is used for delay functions in particular, time.sleep
-import time
-
-#im pasting the entire class. Fight me.
-class telemetry:
-    def __init__(self,longitude,latitude,altitude,heading,timeof):
-        self._longitude = longitude
-        self._latitude = latitude
-        self._altitude = altitude
-        self._heading = heading
-        self._timeof = timeof
-
-        def getLong():
-            return self._longitude
-
-        def getLat():
-            return self._latitude
-
-        def getAlt():
-            return self._altitude
-
-        def getHead():
-            return self._heading
-
-        def getTime():
-            return self._timeof
-
-
-
-#NumPy is used in place of pickle for Serialization/Deserialization
-#import NumPy
+#time is used for delay functions in particular, time.s
+from time import clock
 
 
 #TODO add error checking
@@ -49,10 +20,13 @@ class telemetry:
 #add the ip and port to connect to(the current port number is arbitrary
 #rate is in hertz, localhost refers to local computer. Substitute with actual ip.
 rate = 2
-ip = socket.gethostbyname("localhost")
+ip = "localhost"
 port = 38452
+#verbose controls if status messages play, for debugging.
+verbose = True
 
 
+ip = socket.gethostbyname("localhost")
 #debug statement
 #print("Rate: " + rate + " ip: " + ip + " port: " + port)
 
@@ -65,50 +39,26 @@ except:
 
 #period in full seconds.
 period = 1/float(rate)
-breakcondition = 1
-
-#test variable
-iterator = 1
-
-while(breakcondition):
+breakcondition = False
+timestamp = clock()
+while(not breakcondition):
     #note that cs is used to communicate with mission planner. The error bars are fine.
-    #this is used to delay execution
-    time.sleep(period)
-    latitude = cs.lat
-    longitude = cs.lng
-    altitude = cs.alt
+    if((clock()-timestamp)>=period):
+        timestamp = clock()
+        latitude = cs.lat
+        longitude = cs.lng
+        altitude = cs.alt
+        heading = cs.groundcourse
+        #currentpack = [latitude, longitude, altitude, heading]
+        #payload = pickle.dumps(currentpack)
+        payload = '{"latitude":'+str(latitude)+',"longitude":' + str(longitude)+',"altitude":' + str(altitude)+',"heading":'+ str(heading)+'}'
+        mysocket.send(payload)
+        if(verbose):
+            print("latitude: "+ str(cs.lat))
+            print("Longitude: " + str(cs.lng))
+            print("Altitude: "+str(cs.alt))
+            print("Heading: "+ str(cs.groundcourse))
 
-    #check that this actually gets the heading. Cameron says it does, but check.
-    heading = cs.groundcourse
-    print([latitude,longitude,altitude,heading])
-    #altitude = 6
-    iterator += 1
-    #print(str(type(latitude)))
-
-    print(str(type(latitude)))
-    print(str(type(longitude)))
-    print(str(type(altitude)))
-    print(str(type(heading)))
-    altitude = float(altitude)
-    heading = float(heading)
-    print(str(type(altitude)))
-    print(str(type(heading)))
-
-    #print(str(type(latitude)))
-
-
-    #pickle is being a dick lets try
-    #print("normal: "+str([latitude,longitude,altitude,heading]))
-    #print("chad string: " + [float(latitude),float(longitude),float(altitude),int(heading)])
-    #print("Get altitude type: " +  str(type(altitude)))
-
-    #convertedlist = [float(longitude),float(latitude),float(altitude),float(heading)]
-    #currentpack = telemetry(float(longitude),float(latitude),float(altitude),float(heading),time.time())
-    #currentpack = [float(longitude),float(latitude),float(altitude),float(heading),time.time()]
-    #currentpack = [iterator,iterator+1,iterator+2, iterator +3]
-    currentpack = [latitude,longitude,altitude, heading]
-    payload = pickle.dumps(currentpack)
-    mysocket.send(payload)
     #breakcondition = mysocket.recv(1024)
 
 mysocket.close()
