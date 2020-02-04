@@ -5,7 +5,7 @@
 
 #THIS FILE IS MEANT TO BE RUN IN MISSION PLANNER. RUNNING IT DIRECTLY VIA A STANDARD INTERPRETER WILL FAIL
 
-#socket is used for the tcp socket programming.
+#socket is used for the udp socket programming.
 import socket
 #pickle is used to send a python list over tcp
 import pickle

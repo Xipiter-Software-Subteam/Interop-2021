@@ -33,7 +33,10 @@ thisconnection = connection(judgesip,judgesport,username, password, True)
 
 #initialize a socket, and set it to listen on 38452(arbitrary port)
 mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-mysocket.bind((socket.gethostbyname(clientaddress),int(clientport)))
+
+#THIS HAS BEEN ALTERED
+#mysocket.bind((socket.gethostbyname(clientaddress),int(clientport)))
+mysocket.bind(('',int(clientport)))
 mysocket.listen(1)
 connection, client_address = mysocket.accept()
 
