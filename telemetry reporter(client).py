@@ -27,38 +27,42 @@ verbose = True
 
 
 ip = socket.gethostbyname("localhost")
-#debug statement
-#print("Rate: " + rate + " ip: " + ip + " port: " + port)
 
-mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def reporter():
+    mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-try:  
-    mysocket.connect((ip,int(port)))
-except:
-    print("Error, could not make connection with server side.")
+    try:
+        mysocket.connect((ip,int(port)))
+    except:
+        print("Error, could not make connection with server side.")
 
-#period in full seconds.
-period = 1/float(rate)
-breakcondition = False
-timestamp = clock()
-while(not breakcondition):
-    #note that cs is used to communicate with mission planner. The error bars are fine.
-    if((clock()-timestamp)>=period):
-        timestamp = clock()
-        latitude = cs.lat
-        longitude = cs.lng
-        altitude = cs.alt
-        heading = cs.groundcourse
-        #currentpack = [latitude, longitude, altitude, heading]
-        #payload = pickle.dumps(currentpack)
-        payload = '{"latitude":'+str(latitude)+',"longitude":' + str(longitude)+',"altitude":' + str(altitude)+',"heading":'+ str(heading)+'}'
-        mysocket.send(payload)
-        if(verbose):
-            print("latitude: "+ str(cs.lat))
-            print("Longitude: " + str(cs.lng))
-            print("Altitude: "+str(cs.alt))
-            print("Heading: "+ str(cs.groundcourse))
+    #period in full seconds.
+    period = 1/float(rate)
+    breakcondition = False
+    timestamp = clock()
+    while(not breakcondition):
+        #note that cs is used to communicate with mission planner. The error bars are fine.
+        if((clock()-timestamp)>=period):
+            timestamp = clock()
+            latitude = cs.lat
+            longitude = cs.lng
+            altitude = cs.alt
+            heading = cs.groundcourse
+            #currentpack = [latitude, longitude, altitude, heading]
+            #payload = pickle.dumps(currentpack)
+            payload = '{"latitude":'+str(latitude)+',"longitude":' + str(longitude)+',"altitude":' + str(altitude)+',"heading":'+ str(heading)+'}'
+            mysocket.send(payload)
+            if(verbose):
+                print("latitude: "+ str(cs.lat))
+                print("Longitude: " + str(cs.lng))
+                print("Altitude: "+str(cs.alt))
+                print("Heading: "+ str(cs.groundcourse))
 
-    #breakcondition = mysocket.recv(1024)
-
-mysocket.close()
+        #breakcondition = mysocket.recv(1024)
+def main():
+    while(1):
+        try:
+            reporter()
+        except:
+            print("Error, unexpected end of connection.")
+main()

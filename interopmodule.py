@@ -3,9 +3,7 @@
 
 import json
 import requests
-import ipaddress
 import time
-
 #object is an object as described in the rules
 class odlc():
     #initializer. sets character,character color,shape, color, and orientation
@@ -162,12 +160,18 @@ class connection():
                 thisobject = json.dumps(thisobject)
                 status = requests.post(url=(self._address + "/api/odlcs"), data=thisobject,cookies ={"sessionid":self._sessionid})
                 returnedobject = status.text
-                returnedobject = json.loads(returnedobject)
-                objectid = returnedobject["id"]
-                if(self._verbose):
-                        print(status.status_code)
-                        print(status.text)
-                        print(objectid)
+                objectid = 0
+
+                if (status.status_code != 400):
+                    print(type(status.text))
+                    returnedobject = json.loads(returnedobject)
+                    objectid = returnedobject["id"]
+                    if (self._verbose):
+                        print("Status: " + str(status.status_code))
+                        print("Response: " + str(status.text))
+                        print("id of object: " + str(objectid))
+                else:
+                    objectid = -1
                 return objectid
 
         #object id corresponds to the object that you're querying.
@@ -311,5 +315,18 @@ class connection():
                         print(status.status_code)
                         print(status.text)
                 return objectid
+        #Posts an image associated with the ODLC identified by content ID
+        #image should be the raw binary content of an image.
+        #Must be smaller than 1 megabyte
+        #content type is the type of image.Must be jpeg or png.
+        def postimage(self,id,image,contenttype):
+            status = requests.post( url=(self._address + "/api/odlcs/"+str(id)+"/image"), data=image,cookies={"sessionid": self._sessionid})
+            if(self._verbose):
+                print(status.text)
+            return status.status_code
+
+        def deleteimage(self,id):
+            status = requests.delete(url=(self._address + "/api/odlcs/"+str(id)+"/image"),cookies={"sessionid": self._sessionid})
+            return status.status_code
 
                

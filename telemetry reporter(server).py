@@ -9,12 +9,11 @@ import socket
 import pickle
 
 #the interop module I spent too many hours of my life writing.
-from interopmodule import *
+from interopmodule import connection
 
 import json
 #time, for timestamps
 import time
-
 
 #TODO reformat telemetry as JSON and send it to Ishans application. Also, get the information for Ishan's program from the config file. I guess.
 judgesip = "192.168.1.102"
@@ -27,32 +26,40 @@ username = "testuser"
 password = "testpass"
 
 
+def reporter():
+    from interopmodule import connection
+    # initialize connection with server.
+    thisconnection = connection(judgesip, judgesport, username, password, True)
 
-#initilialize connection with server.
-thisconnection = connection(judgesip,judgesport,username, password, True)
-
-#initialize a socket, and set it to listen on 38452(arbitrary port)
-mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-#THIS HAS BEEN ALTERED
-#mysocket.bind((socket.gethostbyname(clientaddress),int(clientport)))
-mysocket.bind(('',int(clientport)))
-mysocket.listen(1)
-connection, client_address = mysocket.accept()
-
-breakcondition = False
-
-#The connection is thisconnection.
-while(not breakcondition):
-    data = connection.recv(1024)
-    telemetrypack = json.loads(data)
-    latitude = telemetrypack["latitude"]
-    longitude = telemetrypack["longitude"]
-    altitude = telemetrypack["altitude"]
-    heading = telemetrypack["heading"]
-    thisconnection.posttelemetry(latitude,longitude,altitude,heading)
+    # initialize a socket, and set it to listen on 38452(arbitrary port)
+    mysocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 
-#TODO ADD CODE TO CONNECT TO JUDGES SERVER
-mysocket.close()
+    #THIS HAS BEEN ALTERED
+    mysocket.bind(('',int(clientport)))
+    mysocket.listen(1)
+    connection, client_address = mysocket.accept()
+
+    breakcondition = False
+
+    #The connection is thisconnection.
+    while(not breakcondition):
+        data = connection.recv(1024)
+        telemetrypack = json.loads(data)
+        latitude = telemetrypack["latitude"]
+        longitude = telemetrypack["longitude"]
+        altitude = telemetrypack["altitude"]
+        heading = telemetrypack["heading"]
+        thisconnection.posttelemetry(latitude,longitude,altitude,heading)
+
+#attempts to constantly establish connection with
+def main():
+    while(1):
+        try:
+            reporter()
+        except:
+            print("Connection unexpectedly terminated")
+
+main()
+
